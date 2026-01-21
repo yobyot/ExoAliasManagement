@@ -1,0 +1,34 @@
+# PowerShell
+*.ps1xml
+*.nuspec
+
+# Build artifacts
+*.zip
+/Build/
+/Release/
+/publish/
+
+# Test results
+/TestResults/
+*.trx
+
+# Editor files
+.vscode/
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Credentials and secrets
+*.credentials
+*secrets*
+local.settings.json
+
+# Logs
+*.log
