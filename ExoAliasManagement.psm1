@@ -176,12 +176,11 @@ function Find-ExoAlias {
         Write-Host "`nMatching aliases:" -ForegroundColor Cyan
         Write-Host ("-" * 50) -ForegroundColor Cyan
         
-        # Sort aliases to show primary (SMTP:) first, then secondary (smtp:)
+        # Sort aliases: SMTP: (primary) first, then all others alphabetically
         $sortedAliases = $matchingAliases | Sort-Object { 
             if ($_ -cmatch '^SMTP:') { 0 } 
-            elseif ($_ -cmatch '^smtp:') { 1 } 
-            else { 2 } 
-        }
+            else { 1 } 
+        }, { $_ }
         
         foreach ($alias in $sortedAliases) {
             if ($alias -cmatch '^SMTP:') {
@@ -258,7 +257,7 @@ function Add-ExoAlias {
     
     Connect-ExoInteractive
         
-    Set-Mailbox -Identity $MailboxToAddAlias -EmailAddresses @{Add = "smtp:$AddressToBeAdded" } -Verbose
+    Set-Mailbox -Identity $MailboxToAddAlias -EmailAddresses @{Add = "smtp:$AddressToBeAdded" }
     
     # Query Exchange Online to verify the alias was added
     $mboxAddresses = Get-ExoMailboxAddresses -Identity $MailboxToAddAlias
@@ -365,7 +364,7 @@ function Remove-ExoAlias {
             $confirmation = Read-Host "`nDo you want to remove this alias? (Y/N) [N]"
             
             if ($confirmation -eq 'Y' -or $confirmation -eq 'y') {
-                Set-Mailbox -Identity $targetMailbox -EmailAddresses @{Remove = "smtp:$cleanAddress" } -Verbose
+                Set-Mailbox -Identity $targetMailbox -EmailAddresses @{Remove = "smtp:$cleanAddress" }
                 Write-Host "`nAlias removed successfully." -ForegroundColor Green
             } else {
                 

@@ -35,12 +35,16 @@ Import-Module ExoAliasManagement
 
 ## Prerequisites
 
-This module requires the following module:
-- ExchangeOnlineManagement (v3.0.0 or higher)
+- **PowerShell 7.0 or higher** (PowerShell Core)
+- **ExchangeOnlineManagement module** (v3.0.0 or higher)
 
 Install prerequisites:
 ```powershell
+# Install the ExchangeOnlineManagement module
 Install-Module ExchangeOnlineManagement -MinimumVersion 3.0.0
+
+# Verify PowerShell version (should be 7.0 or higher)
+$PSVersionTable.PSVersion
 ```
 
 ## Functions
@@ -168,20 +172,14 @@ Find-ExoAlias "test" "john@contoso.com" | Remove-ExoAlias
 
 ## Version History
 
-### v0.0.2 (2026-01-19)
-- **Breaking Change**: Removed credential management and SecretStore dependencies
-- **Breaking Change**: Removed AdminIdentity parameter from all functions
-- Switched to interactive authentication for Exchange Online
-- Significantly simplified module (44% code reduction)
-- Improved ease of use with fewer required parameters
-
-### v0.0.1 (2026-01-18)
+### v0.0.1 (2026-01-21)
 - Initial release
 - Find-ExoAlias: Search for email aliases in mailboxes
 - Add-ExoAlias: Add email aliases to mailboxes with verification
 - Remove-ExoAlias: Remove email aliases with confirmation prompt
-- Integrated credential management using PowerShell SecretStore
+- Interactive authentication for Exchange Online
 - Email format validation
+- Pipeline support for batch operations
 
 ## Author
 

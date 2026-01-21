@@ -8,7 +8,7 @@
 RootModule = 'ExoAliasManagement.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.2'
+ModuleVersion = '0.0.1'
 
 # ID used to uniquely identify this module
 GUID = 'a1b2c3d4-e5f6-4789-a012-3456789abcde'
@@ -65,20 +65,14 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-v0.0.2 (2026-01-19)
-- Breaking Change: Removed credential management and SecretStore dependencies
-- Breaking Change: Removed AdminIdentity parameter from all functions
-- Switched to interactive authentication for Exchange Online
-- Significantly simplified module (44% code reduction)
-- Improved ease of use with fewer required parameters
-
-v0.0.1 (2026-01-18)
+v0.0.1 (2026-01-21)
 - Initial release
 - Find-ExoAlias: Search for email aliases in mailboxes
 - Add-ExoAlias: Add email aliases to mailboxes with verification
 - Remove-ExoAlias: Remove email aliases with confirmation prompt
-- Integrated credential management using PowerShell SecretStore
+- Interactive authentication for Exchange Online
 - Email format validation
+- Pipeline support for batch operations
 '@
 
     } # End of PSData hashtable
