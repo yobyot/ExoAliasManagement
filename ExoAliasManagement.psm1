@@ -145,6 +145,7 @@ function Find-ExoAlias {
     Returns all aliases for the mailbox.
     #>
     
+    [CmdletBinding()]
     param(
         [Parameter(Mandatory = $false, Position = 0)]
         [AllowEmptyString()]
@@ -196,16 +197,18 @@ function Find-ExoAlias {
             # Skip all other address types (SIP:, X500:, etc.)
         }
         
-        # Output custom objects to pipeline for further processing
-        # Building array before returning prevents console display when piped
-        $arrayPipelineOutput = @()
-        foreach ($alias in $sortedAliases) {
-            $arrayPipelineOutput += [PSCustomObject]@{
-                Alias   = $alias
-                Mailbox = $MailboxToBeSearched
+        # Output custom objects to pipeline only if being piped
+        # Check if output is being captured/piped by inspecting pipeline position
+        if ($PSCmdlet.MyInvocation.PipelinePosition -lt $PSCmdlet.MyInvocation.PipelineLength) {
+            # Being piped - return objects for pipeline processing
+            foreach ($alias in $sortedAliases) {
+                [PSCustomObject]@{
+                    Alias   = $alias
+                    Mailbox = $MailboxToBeSearched
+                }
             }
         }
-        return $arrayPipelineOutput
+        # If not piped, do nothing - user already saw the formatted Write-Host output
     } else {
         Write-Host "`nNo matching aliases found." -ForegroundColor Red
     }
