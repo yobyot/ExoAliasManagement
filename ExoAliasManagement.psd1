@@ -31,7 +31,7 @@ PowerShellVersion = '7.0'
 # Modules that must be imported into the global environment prior to importing this module
 #RequiredModules = @(
 #    @{ ModuleName = 'ExchangeOnlineManagement' }  # ✅ Fixed
-)
+#)
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     'Find-ExoAlias',
