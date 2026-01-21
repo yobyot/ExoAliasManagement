@@ -1,0 +1,96 @@
+name: Publish to PowerShell Gallery
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Triggers on version tags like v0.0.1, v1.0.0, etc.
+  workflow_dispatch:  # Allows manual triggering from GitHub Actions tab
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Validate module manifest
+      shell: pwsh
+      run: |
+        Write-Host "Validating module manifest..." -ForegroundColor Cyan
+        $manifest = Test-ModuleManifest -Path ./ExoAliasManagement.psd1 -ErrorAction Stop
+        Write-Host "✓ Manifest is valid" -ForegroundColor Green
+        Write-Host "  Module: $($manifest.Name)" -ForegroundColor White
+        Write-Host "  Version: $($manifest.Version)" -ForegroundColor White
+        Write-Host "  Author: $($manifest.Author)" -ForegroundColor White
+    
+    - name: Check if version exists on PowerShell Gallery
+      shell: pwsh
+      run: |
+        Write-Host "Checking if version already exists on PowerShell Gallery..." -ForegroundColor Cyan
+        $moduleName = "ExoAliasManagement"
+        $manifest = Test-ModuleManifest -Path ./ExoAliasManagement.psd1
+        $version = $manifest.Version.ToString()
+        
+        try {
+          $published = Find-Module -Name $moduleName -RequiredVersion $version -ErrorAction SilentlyContinue
+          if ($published) {
+            Write-Host "❌ Version $version already exists on PowerShell Gallery!" -ForegroundColor Red
+            Write-Host "Please bump the version number before publishing." -ForegroundColor Yellow
+            exit 1
+          } else {
+            Write-Host "✓ Version $version is not yet published" -ForegroundColor Green
+          }
+        } catch {
+          Write-Host "✓ Module or version not found on gallery (ready to publish)" -ForegroundColor Green
+        }
+    
+    - name: Publish to PowerShell Gallery
+      shell: pwsh
+      env:
+        PSGALLERY_API_KEY: ${{ secrets.PSGALLERY_API_KEY }}
+      run: |
+        Write-Host "Publishing module to PowerShell Gallery..." -ForegroundColor Cyan
+        
+        if ([string]::IsNullOrEmpty($env:PSGALLERY_API_KEY)) {
+          Write-Host "❌ PowerShell Gallery API key not found!" -ForegroundColor Red
+          Write-Host "Please add PSGALLERY_API_KEY to repository secrets." -ForegroundColor Yellow
+          exit 1
+        }
+        
+        try {
+          # Publish the module
+          Publish-Module -Path . -NuGetApiKey $env:PSGALLERY_API_KEY -Verbose -ErrorAction Stop
+          
+          Write-Host "✓ Module published successfully!" -ForegroundColor Green
+          
+          # Get published module info
+          $manifest = Test-ModuleManifest -Path ./ExoAliasManagement.psd1
+          Write-Host "`nPublished module details:" -ForegroundColor Cyan
+          Write-Host "  Name: $($manifest.Name)" -ForegroundColor White
+          Write-Host "  Version: $($manifest.Version)" -ForegroundColor White
+          Write-Host "  Gallery URL: https://www.powershellgallery.com/packages/$($manifest.Name)/$($manifest.Version)" -ForegroundColor White
+          
+        } catch {
+          Write-Host "❌ Failed to publish module" -ForegroundColor Red
+          Write-Host $_.Exception.Message -ForegroundColor Red
+          exit 1
+        }
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        generate_release_notes: true
+        body: |
+          ## PowerShell Gallery
+          This version has been published to the PowerShell Gallery.
+          
+          Install with:
+          ```powershell
+          Install-Module -Name ExoAliasManagement -RequiredVersion ${{ github.ref_name }}
+          ```
+          
+          View on PowerShell Gallery: https://www.powershellgallery.com/packages/ExoAliasManagement
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
