@@ -8,6 +8,19 @@ ExoAliasManagement provides a set of functions to find, add, and remove email al
 
 ## Installation
 
+### From PowerShell Gallery (Recommended)
+
+```powershell
+# Install for the current user
+Install-Module -Name ExoAliasManagement -Scope CurrentUser
+
+# Or install for all users (requires administrator privileges)
+Install-Module -Name ExoAliasManagement -Scope AllUsers
+
+# Import the module
+Import-Module ExoAliasManagement
+```
+
 ### From GitHub
 
 ```powershell
@@ -36,12 +49,12 @@ Import-Module ExoAliasManagement
 ## Prerequisites
 
 - **PowerShell 7.0 or higher** (PowerShell Core)
-- **ExchangeOnlineManagement module** (v3.0.0 or higher)
+- **ExchangeOnlineManagement module** (v3.9.2 or higher)
 
 Install prerequisites:
 ```powershell
 # Install the ExchangeOnlineManagement module
-Install-Module ExchangeOnlineManagement -MinimumVersion 3.0.0
+Install-Module ExchangeOnlineManagement -MinimumVersion 3.9.2
 
 # Verify PowerShell version (should be 7.0 or higher)
 $PSVersionTable.PSVersion
@@ -55,11 +68,11 @@ Searches for an email alias in an Exchange Online mailbox. Uses interactive auth
 
 **Syntax:**
 ```powershell
-Find-ExoAlias [[-AddressToBeSearched] <String>] [-MailboxToBeSearched] <String>
+Find-ExoAlias <String> -MailboxToBeSearched <String>
 ```
 
 **Parameters:**
-- `AddressToBeSearched`: Optional. Search pattern for aliases. If empty or omitted, returns all aliases.
+- `AddressToBeSearched`: Search pattern for aliases. Use empty string "" to return all aliases.
 - `MailboxToBeSearched`: Required. The mailbox email address to search.
 
 **Examples:**
@@ -83,7 +96,7 @@ Adds an email alias to an Exchange Online mailbox and verifies it was added succ
 
 **Syntax:**
 ```powershell
-Add-ExoAlias [-AddressToBeAdded] <String> [-MailboxToAddAlias] <String>
+Add-ExoAlias -AddressToBeAdded <String> -MailboxToAddAlias <String>
 ```
 
 **Examples:**
@@ -101,7 +114,7 @@ Removes an email alias from an Exchange Online mailbox with confirmation prompt.
 
 **Syntax:**
 ```powershell
-Remove-ExoAlias [-AddressToBeRemoved] <String> [[-MailboxToBeRemoved] <String>]
+Remove-ExoAlias -AddressToBeRemoved <String> [[-MailboxToBeRemoved] <String>]
 ```
 
 **Parameters:**
