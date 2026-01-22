@@ -8,7 +8,7 @@
 RootModule = 'ExoAliasManagement.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.2'
+ModuleVersion = '0.0.3'
 
 # ID used to uniquely identify this module
 GUID = 'a1b2c3d4-e5f6-4789-a012-3456789abcde'
