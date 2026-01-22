@@ -36,7 +36,7 @@ CompatiblePSEditions = @('Core')
 # already enforces this dependency at runtime. This prevents issues during Test-ModuleManifest
 # in build environments where ExchangeOnlineManagement may not be installed.
 #RequiredModules = @(
-#    @{ ModuleName = 'ExchangeOnlineManagement'; ModuleVersion = '3.0.0' }
+#    @{ ModuleName = 'ExchangeOnlineManagement'; ModuleVersion = '0.0.4' }
 #)
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
