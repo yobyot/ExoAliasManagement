@@ -6,6 +6,9 @@ on:
       - 'v*.*.*'  # Triggers on version tags like v0.0.1, v1.0.0, etc.
   workflow_dispatch:  # Allows manual triggering from GitHub Actions tab
 
+permissions:
+  contents: write  # Required for creating GitHub Releases
+
 jobs:
   publish:
     runs-on: ubuntu-latest
