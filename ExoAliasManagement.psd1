@@ -8,7 +8,7 @@
 RootModule = 'ExoAliasManagement.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.3'
+ModuleVersion = '0.0.4'
 
 # ID used to uniquely identify this module
 GUID = 'a1b2c3d4-e5f6-4789-a012-3456789abcde'
@@ -28,10 +28,17 @@ Description = 'PowerShell module for managing Exchange Online email aliases. Pro
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '7.0'
 
+# Supported PSEditions
+CompatiblePSEditions = @('Core')
+
 # Modules that must be imported into the global environment prior to importing this module
+# NOTE: RequiredModules is commented out because the #requires statement in the .psm1 file
+# already enforces this dependency at runtime. This prevents issues during Test-ModuleManifest
+# in build environments where ExchangeOnlineManagement may not be installed.
 #RequiredModules = @(
-#    @{ ModuleName = 'ExchangeOnlineManagement' }  # ✅ Fixed
+#    @{ ModuleName = 'ExchangeOnlineManagement'; ModuleVersion = '3.0.0' }
 #)
+
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
     'Find-ExoAlias',
@@ -64,6 +71,12 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+v0.0.4 (2026-01-22)
+- Added CompatiblePSEditions = Core to indicate PowerShell 7+ requirement
+- Removed RequiredModules from manifest to fix GitHub Actions build issues
+- Dependency enforcement moved to #requires statement in .psm1 file
+- Fixed GitHub Actions workflow permissions for automated publishing
+
 v0.0.1 (2026-01-21)
 - Initial release
 - Find-ExoAlias: Search for email aliases in mailboxes

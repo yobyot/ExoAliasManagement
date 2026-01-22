@@ -185,6 +185,12 @@ Find-ExoAlias "test" "john@contoso.com" | Remove-ExoAlias
 
 ## Version History
 
+### v0.0.4 (2026-01-22)
+- Added CompatiblePSEditions = Core to indicate PowerShell 7+ requirement
+- Removed RequiredModules from manifest to fix GitHub Actions build issues
+- Dependency enforcement moved to #requires statement in .psm1 file
+- Fixed GitHub Actions workflow permissions for automated publishing
+
 ### v0.0.1 (2026-01-21)
 - Initial release
 - Find-ExoAlias: Search for email aliases in mailboxes
