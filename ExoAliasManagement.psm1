@@ -308,7 +308,7 @@ function Remove-ExoAlias {
         [Alias('Alias')]
         [string]$AddressToBeRemoved,
         
-        [Parameter(Mandatory = $false, Position = 1, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enter the mailbox email address to modify (e.g., user@example.com)")]
+        [Parameter(Mandatory = $true, Position = 1, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enter the mailbox email address to modify (e.g., user@example.com)")]
         [Alias('Mailbox')]
         [string]$MailboxToBeRemoved
     )
@@ -322,13 +322,8 @@ function Remove-ExoAlias {
     }
     
     process {
-        # Determine which mailbox to use
-        $targetMailbox = if ($MailboxToBeRemoved) { $MailboxToBeRemoved } else { $null }
-        
-        if (-not $targetMailbox) {
-            Write-Host "Error: Mailbox parameter is required when not using pipeline input from Find-ExoAlias." -ForegroundColor Red
-            return
-        }
+        # Use the provided mailbox
+        $targetMailbox = $MailboxToBeRemoved
         
         # Validate mailbox email format
         if (-not (Test-EmailFormat -EmailAddress $targetMailbox)) {
