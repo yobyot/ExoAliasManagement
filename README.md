@@ -187,6 +187,12 @@ Find-ExoAlias "test" "john@contoso.com" | Remove-ExoAlias
 
 ## Version History
 
+### v0.0.5 (2026-01-25)
+- Added Test-MailboxAndEmailFormat private function for mailbox existence validation
+- Updated all public functions to validate mailbox existence using Get-CasMailbox
+- Enhanced error messages to indicate both format and existence validation failures
+- Improved reliability by checking mailboxes exist before performing operations
+
 ### v0.0.4 (2026-01-22)
 - Added CompatiblePSEditions = Core to indicate PowerShell 7+ requirement
 - Removed RequiredModules from manifest to fix GitHub Actions build issues
