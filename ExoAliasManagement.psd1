@@ -8,7 +8,7 @@
 RootModule = 'ExoAliasManagement.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.4'
+ModuleVersion = '0.0.5'
 
 # ID used to uniquely identify this module
 GUID = 'a1b2c3d4-e5f6-4789-a012-3456789abcde'
@@ -71,6 +71,12 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+v0.0.5 (2026-01-25)
+- Added Test-MailboxAndEmailFormat private function for mailbox existence validation
+- Updated all public functions to validate mailbox existence using Get-CasMailbox
+- Enhanced error messages to indicate both format and existence validation failures
+- Improved reliability by checking mailboxes exist before performing operations
+
 v0.0.4 (2026-01-22)
 - Added CompatiblePSEditions = Core to indicate PowerShell 7+ requirement
 - Removed RequiredModules from manifest to fix GitHub Actions build issues

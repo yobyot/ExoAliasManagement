@@ -115,6 +115,41 @@ function Test-EmailFormat {
     return $EmailAddress -match $emailPattern
 }
 
+function Test-MailboxAndEmailFormat {
+    <#
+    .SYNOPSIS
+    Validates that a string is in proper email format and that the mailbox exists in Exchange Online.
+    
+    .DESCRIPTION
+    Tests whether a string matches the pattern user@example.com and verifies the mailbox exists
+    in Exchange Online using Get-CasMailbox. Returns $true if valid and exists, $false otherwise.
+    
+    .PARAMETER EmailAddress
+    The email address string to validate.
+    
+    .OUTPUTS
+    Boolean indicating whether the email format is valid and the mailbox exists.
+    #>
+    
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$EmailAddress
+    )
+    
+    # First check email format
+    if (-not (Test-EmailFormat -EmailAddress $EmailAddress)) {
+        return $false
+    }
+    
+    # Check if mailbox exists in Exchange Online
+    try {
+        $null = Get-CasMailbox -Identity $EmailAddress -ErrorAction Stop
+        return $true
+    } catch {
+        return $false
+    }
+}
+
 #endregion
 
 #region Public Functions
@@ -155,13 +190,18 @@ function Find-ExoAlias {
         [string]$MailboxToBeSearched
     )
     
-    # Validate mailbox email format
+    # Validate mailbox email format and existence
     if (-not (Test-EmailFormat -EmailAddress $MailboxToBeSearched)) {
         Write-Host "Error: '$MailboxToBeSearched' is not a valid email address format. Expected format: user@example.com" -ForegroundColor Red
         return
     }
     
     Connect-ExoInteractive
+    
+    if (-not (Test-MailboxAndEmailFormat -EmailAddress $MailboxToBeSearched)) {
+        Write-Host "Error: '$MailboxToBeSearched' is not a valid email address or the mailbox does not exist in Exchange Online." -ForegroundColor Red
+        return
+    }
     
     $mboxAddresses = Get-ExoMailboxAddresses -Identity $MailboxToBeSearched
     
@@ -243,19 +283,25 @@ function Add-ExoAlias {
         [string]$MailboxToAddAlias
     )
     
-    # Validate mailbox email format
-    if (-not (Test-EmailFormat -EmailAddress $MailboxToAddAlias)) {
-        Write-Host "Error: '$MailboxToAddAlias' is not a valid email address format. Expected format: user@example.com" -ForegroundColor Red
-        return
-    }
-    
     # Validate address email format
     if (-not (Test-EmailFormat -EmailAddress $AddressToBeAdded)) {
         Write-Host "Error: '$AddressToBeAdded' is not a valid email address format. Expected format: user@example.com" -ForegroundColor Red
         return
     }
     
+    # Validate mailbox email format
+    if (-not (Test-EmailFormat -EmailAddress $MailboxToAddAlias)) {
+        Write-Host "Error: '$MailboxToAddAlias' is not a valid email address format. Expected format: user@example.com" -ForegroundColor Red
+        return
+    }
+    
     Connect-ExoInteractive
+    
+    # Validate mailbox exists in Exchange Online
+    if (-not (Test-MailboxAndEmailFormat -EmailAddress $MailboxToAddAlias)) {
+        Write-Host "Error: '$MailboxToAddAlias' is not a valid email address or the mailbox does not exist in Exchange Online." -ForegroundColor Red
+        return
+    }
         
     Set-Mailbox -Identity $MailboxToAddAlias -EmailAddresses @{Add = "smtp:$AddressToBeAdded" }
     
@@ -328,6 +374,12 @@ function Remove-ExoAlias {
         # Validate mailbox email format
         if (-not (Test-EmailFormat -EmailAddress $targetMailbox)) {
             Write-Host "Error: '$targetMailbox' is not a valid email address format. Expected format: user@example.com" -ForegroundColor Red
+            return
+        }
+        
+        # Validate mailbox exists in Exchange Online
+        if (-not (Test-MailboxAndEmailFormat -EmailAddress $targetMailbox)) {
+            Write-Host "Error: '$targetMailbox' is not a valid email address or the mailbox does not exist in Exchange Online." -ForegroundColor Red
             return
         }
         

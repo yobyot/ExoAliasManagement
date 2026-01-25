@@ -5,6 +5,22 @@ All notable changes to the ExoAliasManagement module will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - 2026-01-25
+
+### Added
+- New private function `Test-MailboxAndEmailFormat` to validate both email format and mailbox existence
+- Mailbox existence validation using `Get-CasMailbox` in all public functions
+
+### Changed
+- `Find-ExoAlias` now validates that the target mailbox exists in Exchange Online before searching
+- `Add-ExoAlias` now validates that the target mailbox exists in Exchange Online before adding aliases
+- `Remove-ExoAlias` now validates that the target mailbox exists in Exchange Online before removing aliases
+- Enhanced error messages to indicate both format validation and mailbox existence failures
+
+### Improved
+- Reliability by preventing operations on non-existent mailboxes
+- User experience with clearer error messages
+
 ## [0.0.4] - 2026-01-22
 
 ### Changed

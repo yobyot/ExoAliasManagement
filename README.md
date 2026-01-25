@@ -141,10 +141,12 @@ The following helper functions support the public cmdlets. They are internal to 
 - **Get-ExoMailboxAddresses**: Retrieves all email addresses for a specified mailbox.
 - **Find-ExoAliasInAddresses**: Searches for an alias in a collection of email addresses.
 - **Test-EmailFormat**: Validates that a string is in proper email format.
+- **Test-MailboxAndEmailFormat**: Validates email format and verifies mailbox exists in Exchange Online using Get-CasMailbox.
 
 ## Features
 
 - **Interactive Authentication**: Uses interactive login for Exchange Online connections
+- **Mailbox Validation**: Verifies mailboxes exist in Exchange Online before performing operations
 - **Pipeline Support**: Find-ExoAlias outputs objects that can be piped to Remove-ExoAlias for batch operations
 - **Smart Sorting**: Aliases displayed with primary SMTP address first (green), then secondary aliases (yellow)
 - **Email Validation**: Validates email addresses are in proper user@example.com format
