@@ -187,13 +187,14 @@ Find-ExoAlias "test" "john@contoso.com" | Remove-ExoAlias
 
 ## Version History
 
-
-### v0.0.6 (2026-01-26)
+### v0.0.7 (2026-01-26)
 - New `SyncChangelogs.ps1` script to synchronize CHANGELOG.md with manifest and README.md
-- PowerShell aliases for convenience: `fea` (Find-ExoAlias), `aea` (Add-ExoAlias), `rea` (Remove-ExoAlias)
 - CHANGELOG.md is now the single source of truth for all version history
 - `Release.ps1` no longer syncs README.md automatically - use `SyncChangelogs.ps1` instead
 - Workflow updated: Update CHANGELOG.md first, then run SyncChangelogs.ps1 to propagate changes
+
+### v0.0.6 (2026-01-26)
+- PowerShell aliases for convenience: `fea` (Find-ExoAlias), `aea` (Add-ExoAlias), `rea` (Remove-ExoAlias)
 
 ### v0.0.5 (2026-01-25)
 - New private function `Test-MailboxAndEmailFormat` to validate both email format and mailbox existence

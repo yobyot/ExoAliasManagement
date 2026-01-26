@@ -21,6 +21,10 @@
 .PARAMETER SkipPush
     Don't push changes and tags to remote repository.
 
+.PARAMETER Republish
+    Republish the current version without changing the version number.
+    Useful for fixing metadata or updating release notes without a version bump.
+
 .EXAMPLE
     .\Release.ps1
     # Interactive mode - prompts for all inputs
@@ -36,6 +40,10 @@
 .EXAMPLE
     .\Release.ps1 -CustomVersion "2.0.0"
     # Set specific version
+
+.EXAMPLE
+    .\Release.ps1 -Republish
+    # Republish current version without changing version number
 #>
 
 [CmdletBinding()]
@@ -49,7 +57,10 @@ param(
     [string]$CustomVersion,
     
     [Parameter()]
-    [switch]$SkipPush
+    [switch]$SkipPush,
+    
+    [Parameter()]
+    [switch]$Republish
 )
 
 $ErrorActionPreference = 'Stop'
@@ -85,7 +96,11 @@ $currentVersion = $manifest.Version
 Write-Host "Current version: $currentVersion" -ForegroundColor Green
 
 # Determine new version
-if ($CustomVersion) {
+if ($Republish) {
+    $newVersion = $currentVersion
+    Write-Host "Republishing current version: $newVersion" -ForegroundColor Cyan
+    Write-Host "WARNING: This will republish the same version number!" -ForegroundColor Yellow
+} elseif ($CustomVersion) {
     $newVersion = [Version]$CustomVersion
     Write-Host "Using custom version: $newVersion" -ForegroundColor Cyan
 } elseif ($BumpType) {
@@ -102,8 +117,9 @@ if ($CustomVersion) {
     Write-Host "  2) Minor  ($currentVersion -> $($currentVersion.Major).$($currentVersion.Minor + 1).0)" -ForegroundColor White
     Write-Host "  3) Major  ($currentVersion -> $($currentVersion.Major + 1).0.0)" -ForegroundColor White
     Write-Host "  4) Custom version" -ForegroundColor White
+    Write-Host "  5) Republish current version ($currentVersion)" -ForegroundColor Yellow
     
-    $choice = Read-Host "`nEnter choice (1-4)"
+    $choice = Read-Host "`nEnter choice (1-5)"
     
     switch ($choice) {
         '1' { $newVersion = [Version]::new($currentVersion.Major, $currentVersion.Minor, $currentVersion.Build + 1) }
@@ -117,6 +133,10 @@ if ($CustomVersion) {
                 Write-Host "Error: Invalid version format. Must be x.y.z" -ForegroundColor Red
                 exit 1
             }
+        }
+        '5' { 
+            $newVersion = $currentVersion
+            Write-Host "WARNING: Republishing the same version number!" -ForegroundColor Yellow
         }
         default {
             Write-Host "Error: Invalid choice" -ForegroundColor Red

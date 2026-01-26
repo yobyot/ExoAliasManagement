@@ -124,9 +124,10 @@ if (Test-Path $readmePath) {
     $readmeContent = Get-Content $readmePath -Raw
     
     # Replace Version History section content
-    # Pattern: ## Version History followed by content until next ## heading
-    if ($readmeContent -match '(?s)(## Version History\s*\n\s*).*?(?=\n## |\Z)') {
-        $readmeContent = $readmeContent -replace '(?s)(## Version History\s*\n\s*).*?(?=\n## |\Z)', "`${1}`n$readmeHistoryText`n`n"
+    # Pattern: ## Version History followed by content until next ## heading or end of file
+    if ($readmeContent -match '(?s)(## Version History).*?(?=\n## [A-Z]|\Z)') {
+        $replacement = "`$1`n`n$readmeHistoryText`n`n"
+        $readmeContent = $readmeContent -replace '(?s)(## Version History).*?(?=\n## [A-Z]|\Z)', $replacement
         Set-Content -Path $readmePath -Value $readmeContent -NoNewline
         Write-Host "  ✓ README.md Version History updated" -ForegroundColor Green
     } else {
