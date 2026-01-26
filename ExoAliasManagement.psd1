@@ -8,7 +8,7 @@
 RootModule = 'ExoAliasManagement.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.6'
+ModuleVersion = '0.0.7'
 
 # ID used to uniquely identify this module
 GUID = 'a1b2c3d4-e5f6-4789-a012-3456789abcde'
@@ -36,7 +36,7 @@ CompatiblePSEditions = @('Core')
 # already enforces this dependency at runtime. This prevents issues during Test-ModuleManifest
 # in build environments where ExchangeOnlineManagement may not be installed.
 #RequiredModules = @(
-#    @{ ModuleName = 'ExchangeOnlineManagement'; ModuleVersion = '0.0.6' }
+#    @{ ModuleName = 'ExchangeOnlineManagement'; ModuleVersion = '0.0.7' }
 #)
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
@@ -71,12 +71,14 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
-v0.0.6 (2026-01-26)
+v0.0.7 (2026-01-26)
 - New `SyncChangelogs.ps1` script to synchronize CHANGELOG.md with manifest and README.md
-- PowerShell aliases for convenience: `fea` (Find-ExoAlias), `aea` (Add-ExoAlias), `rea` (Remove-ExoAlias)
 - CHANGELOG.md is now the single source of truth for all version history
 - `Release.ps1` no longer syncs README.md automatically - use `SyncChangelogs.ps1` instead
 - Workflow updated: Update CHANGELOG.md first, then run SyncChangelogs.ps1 to propagate changes
+
+v0.0.6 (2026-01-26)
+- PowerShell aliases for convenience: `fea` (Find-ExoAlias), `aea` (Add-ExoAlias), `rea` (Remove-ExoAlias)
 
 v0.0.5 (2026-01-25)
 - New private function `Test-MailboxAndEmailFormat` to validate both email format and mailbox existence
