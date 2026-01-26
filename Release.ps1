@@ -170,6 +170,7 @@ if ($manifestContent -match "ReleaseNotes\s*=\s*@'[\r\n]+(.*?)[\r\n]+'@") {
 Set-Content -Path $manifestPath -Value $manifestContent -NoNewline
 
 Write-Host "`nManifest updated successfully!" -ForegroundColor Green
+Write-Host "Note: Run .\SyncChangelogs.ps1 to sync CHANGELOG.md with manifest and README.md" -ForegroundColor Yellow
 
 # Verify the manifest is valid
 try {
