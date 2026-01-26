@@ -66,13 +66,39 @@ $gitStatus = git status --porcelain
 if ($gitStatus) {
     Write-Host "Error: You have uncommitted changes. Please commit all changes before running Release.ps1" -ForegroundColor Red
     git status --short
-    Write-Host "\nCommit your changes first:" -ForegroundColor Yellow
+    Write-Host "`nCommit your changes first:" -ForegroundColor Yellow
     Write-Host "  git add ." -ForegroundColor White
     Write-Host "  git commit -m 'Your commit message'" -ForegroundColor White
     exit 1
 }
 
 Write-Host "✓ Git working directory is clean" -ForegroundColor Green
+
+# Verify local is in sync with remote
+Write-Host "\nChecking if local branch is in sync with remote..." -ForegroundColor Cyan
+$branch = git rev-parse --abbrev-ref HEAD
+
+# Fetch latest from remote without merging
+git fetch origin $branch 2>&1 | Out-Null
+
+# Get local and remote commit hashes
+$localCommit = git rev-parse HEAD
+$remoteCommit = git rev-parse origin/$branch 2>$null
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Warning: No remote tracking branch found. Continuing..." -ForegroundColor Yellow
+} elseif ($localCommit -ne $remoteCommit) {
+    Write-Host "Error: Local branch is not in sync with remote!" -ForegroundColor Red
+    Write-Host "  Local:  $localCommit" -ForegroundColor White
+    Write-Host "  Remote: $remoteCommit" -ForegroundColor White
+    Write-Host "\nPlease sync your branch first:" -ForegroundColor Yellow
+    Write-Host "  git pull origin $branch" -ForegroundColor White
+    Write-Host "  or" -ForegroundColor White
+    Write-Host "  git push origin $branch" -ForegroundColor White
+    exit 1
+} else {
+    Write-Host "✓ Local branch is in sync with remote" -ForegroundColor Green
+}
 
 # Read current version from manifest
 Write-Host "`nReading current version from manifest..." -ForegroundColor Cyan
@@ -98,9 +124,8 @@ if ($CustomVersion) {
     Write-Host "  2) Minor  ($currentVersion -> $($currentVersion.Major).$($currentVersion.Minor + 1).0)" -ForegroundColor White
     Write-Host "  3) Major  ($currentVersion -> $($currentVersion.Major + 1).0.0)" -ForegroundColor White
     Write-Host "  4) Custom version" -ForegroundColor White
-    Write-Host "  5) Republish current version ($currentVersion)" -ForegroundColor Yellow
     
-    $choice = Read-Host "`nEnter choice (1-5)"
+    $choice = Read-Host "`nEnter choice (1-4)"
     
     switch ($choice) {
         '1' { $newVersion = [Version]::new($currentVersion.Major, $currentVersion.Minor, $currentVersion.Build + 1) }
@@ -114,10 +139,6 @@ if ($CustomVersion) {
                 Write-Host "Error: Invalid version format. Must be x.y.z" -ForegroundColor Red
                 exit 1
             }
-        }
-        '5' { 
-            $newVersion = $currentVersion
-            Write-Host "WARNING: Republishing the same version number!" -ForegroundColor Yellow
         }
         default {
             Write-Host "Error: Invalid choice" -ForegroundColor Red
