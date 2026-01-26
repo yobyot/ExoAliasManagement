@@ -425,5 +425,10 @@ function Remove-ExoAlias {
 
 #endregion
 
-# Export only the public functions
-Export-ModuleMember -Function Find-ExoAlias, Add-ExoAlias, Remove-ExoAlias
+# Create aliases for convenience
+New-Alias -Name 'fea' -Value 'Find-ExoAlias'
+New-Alias -Name 'aea' -Value 'Add-ExoAlias'
+New-Alias -Name 'rea' -Value 'Remove-ExoAlias'
+
+# Export only the public functions and aliases
+Export-ModuleMember -Function Find-ExoAlias, Add-ExoAlias, Remove-ExoAlias -Alias fea, aea, rea
