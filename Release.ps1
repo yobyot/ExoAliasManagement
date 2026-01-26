@@ -75,7 +75,7 @@ if ($gitStatus) {
 Write-Host "✓ Git working directory is clean" -ForegroundColor Green
 
 # Verify local is in sync with remote
-Write-Host "\nChecking if local branch is in sync with remote..." -ForegroundColor Cyan
+Write-Host "`nChecking if local branch is in sync with remote..." -ForegroundColor Cyan
 $branch = git rev-parse --abbrev-ref HEAD
 
 # Fetch latest from remote without merging
@@ -91,7 +91,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: Local branch is not in sync with remote!" -ForegroundColor Red
     Write-Host "  Local:  $localCommit" -ForegroundColor White
     Write-Host "  Remote: $remoteCommit" -ForegroundColor White
-    Write-Host "\nPlease sync your branch first:" -ForegroundColor Yellow
+    Write-Host "`nPlease sync your branch first:" -ForegroundColor Yellow
     Write-Host "  git pull origin $branch" -ForegroundColor White
     Write-Host "  or" -ForegroundColor White
     Write-Host "  git push origin $branch" -ForegroundColor White
