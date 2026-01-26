@@ -4,14 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'  # Triggers on version tags like v0.0.1, v1.0.0, etc.
-      - 'v*.*.*-republish'  # Allows republishing with -republish suffix
   workflow_dispatch:  # Allows manual triggering from GitHub Actions tab
-    inputs:
-      force_republish:
-        description: 'Force republish current version (skip version check)'
-        required: false
-        type: boolean
-        default: false
 
 permissions:
   contents: write  # Required for creating GitHub Releases
@@ -35,7 +28,6 @@ jobs:
         Write-Host "  Author: $($manifest.Author)" -ForegroundColor White
     
     - name: Check if version exists on PowerShell Gallery
-      if: ${{ !inputs.force_republish && !contains(github.ref, '-republish') }}
       shell: pwsh
       run: |
         Write-Host "Checking if version already exists on PowerShell Gallery..." -ForegroundColor Cyan
@@ -55,14 +47,6 @@ jobs:
         } catch {
           Write-Host "✓ Module or version not found on gallery (ready to publish)" -ForegroundColor Green
         }
-    
-    - name: Skip version check (Republish mode)
-      if: ${{ inputs.force_republish || contains(github.ref, '-republish') }}
-      shell: pwsh
-      run: |
-        Write-Host "⚠ Republish mode enabled - skipping version existence check" -ForegroundColor Yellow
-        $manifest = Test-ModuleManifest -Path ./ExoAliasManagement.psd1
-        Write-Host "  Version to republish: $($manifest.Version)" -ForegroundColor White
     
     - name: Publish to PowerShell Gallery
       shell: pwsh

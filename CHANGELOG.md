@@ -5,6 +5,19 @@ All notable changes to the ExoAliasManagement module will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.8] - 2026-01-26
+
+### Changed
+- `Release.ps1` now requires clean git state before running (all changes must be committed first)
+- `Release.ps1` automatically pushes changes and tags to GitHub without prompting
+- Removed `-SkipPush` parameter from `Release.ps1` - always pushes to remote
+- Removed republish functionality from `Release.ps1` and `publish-to-gallery.yml` (PowerShell Gallery does not support republishing existing versions)
+
+### Removed
+- `-Republish` parameter from `Release.ps1`
+- Republish option from interactive version selection menu
+- `force_republish` input from GitHub Actions workflow
+
 ## [0.0.7] - 2026-01-26
 
 ### Added

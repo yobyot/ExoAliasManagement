@@ -4,26 +4,20 @@
 
 .DESCRIPTION
     This script helps maintain consistent versioning by:
+    - Requiring all changes to be committed before running
     - Reading current version from module manifest
     - Prompting for version bump type (major/minor/patch) or custom version
     - Updating the module manifest with new version
     - Prompting for release notes
     - Creating a Git commit
     - Creating a matching Git tag
-    - Optionally pushing to remote
+    - Automatically pushing changes and tags to remote
 
 .PARAMETER BumpType
     Type of version bump: Major, Minor, or Patch. If not specified, prompts interactively.
 
 .PARAMETER CustomVersion
     Specify a custom version number instead of bumping. Format: x.y.z
-
-.PARAMETER SkipPush
-    Don't push changes and tags to remote repository.
-
-.PARAMETER Republish
-    Republish the current version without changing the version number.
-    Useful for fixing metadata or updating release notes without a version bump.
 
 .EXAMPLE
     .\Release.ps1
@@ -40,10 +34,6 @@
 .EXAMPLE
     .\Release.ps1 -CustomVersion "2.0.0"
     # Set specific version
-
-.EXAMPLE
-    .\Release.ps1 -Republish
-    # Republish current version without changing version number
 #>
 
 [CmdletBinding()]
@@ -54,13 +44,7 @@ param(
     
     [Parameter()]
     [ValidatePattern('^\d+\.\d+\.\d+$')]
-    [string]$CustomVersion,
-    
-    [Parameter()]
-    [switch]$SkipPush,
-    
-    [Parameter()]
-    [switch]$Republish
+    [string]$CustomVersion
 )
 
 $ErrorActionPreference = 'Stop'
@@ -77,17 +61,18 @@ try {
     exit 1
 }
 
-# Check for uncommitted changes
+# Require clean working directory (all changes must be committed)
 $gitStatus = git status --porcelain
-if ($gitStatus -and $gitStatus -notmatch '^M.*ExoAliasManagement\.psd1$') {
-    Write-Host "Warning: You have uncommitted changes besides the manifest:" -ForegroundColor Yellow
+if ($gitStatus) {
+    Write-Host "Error: You have uncommitted changes. Please commit all changes before running Release.ps1" -ForegroundColor Red
     git status --short
-    $continue = Read-Host "`nContinue anyway? (y/N)"
-    if ($continue -ne 'y' -and $continue -ne 'Y') {
-        Write-Host "Release cancelled." -ForegroundColor Yellow
-        exit 0
-    }
+    Write-Host "\nCommit your changes first:" -ForegroundColor Yellow
+    Write-Host "  git add ." -ForegroundColor White
+    Write-Host "  git commit -m 'Your commit message'" -ForegroundColor White
+    exit 1
 }
+
+Write-Host "✓ Git working directory is clean" -ForegroundColor Green
 
 # Read current version from manifest
 Write-Host "`nReading current version from manifest..." -ForegroundColor Cyan
@@ -96,11 +81,7 @@ $currentVersion = $manifest.Version
 Write-Host "Current version: $currentVersion" -ForegroundColor Green
 
 # Determine new version
-if ($Republish) {
-    $newVersion = $currentVersion
-    Write-Host "Republishing current version: $newVersion" -ForegroundColor Cyan
-    Write-Host "WARNING: This will republish the same version number!" -ForegroundColor Yellow
-} elseif ($CustomVersion) {
+if ($CustomVersion) {
     $newVersion = [Version]$CustomVersion
     Write-Host "Using custom version: $newVersion" -ForegroundColor Cyan
 } elseif ($BumpType) {
@@ -228,28 +209,12 @@ try {
     Write-Host "`n--- Tag ---" -ForegroundColor Cyan
     git tag -l $tagName -n9
     
-    # Push to remote (unless SkipPush)
-    if (-not $SkipPush) {
-        Write-Host "`nPush changes to remote? (y/N): " -ForegroundColor Yellow -NoNewline
-        $pushConfirm = Read-Host
-        
-        if ($pushConfirm -eq 'y' -or $pushConfirm -eq 'Y') {
-            $branch = git rev-parse --abbrev-ref HEAD
-            git push origin $branch
-            git push origin $tagName
-            Write-Host "`nChanges and tag pushed to remote!" -ForegroundColor Green
-        } else {
-            Write-Host "`nSkipped push. To push later, run:" -ForegroundColor Yellow
-            Write-Host "  git push origin $branch" -ForegroundColor White
-            Write-Host "  git push origin $tagName" -ForegroundColor White
-        }
-    } else {
-        Write-Host "`nPush skipped (use -SkipPush parameter)" -ForegroundColor Yellow
-        $branch = git rev-parse --abbrev-ref HEAD
-        Write-Host "To push later, run:" -ForegroundColor Yellow
-        Write-Host "  git push origin $branch" -ForegroundColor White
-        Write-Host "  git push origin $tagName" -ForegroundColor White
-    }
+    # Automatically push to remote
+    Write-Host "`nPushing changes and tag to remote..." -ForegroundColor Cyan
+    $branch = git rev-parse --abbrev-ref HEAD
+    git push origin $branch
+    git push origin $tagName
+    Write-Host "`nChanges and tag pushed to remote!" -ForegroundColor Green
     
     Write-Host "`n✓ Release $newVersion completed successfully!" -ForegroundColor Green
     

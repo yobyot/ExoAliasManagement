@@ -187,6 +187,15 @@ Find-ExoAlias "test" "john@contoso.com" | Remove-ExoAlias
 
 ## Version History
 
+### v0.0.8 (2026-01-26)
+- `Release.ps1` now requires clean git state before running (all changes must be committed first)
+- `Release.ps1` automatically pushes changes and tags to GitHub without prompting
+- Removed `-SkipPush` parameter from `Release.ps1` - always pushes to remote
+- Removed republish functionality from `Release.ps1` and `publish-to-gallery.yml` (PowerShell Gallery does not support republishing existing versions)
+- `-Republish` parameter from `Release.ps1`
+- Republish option from interactive version selection menu
+- `force_republish` input from GitHub Actions workflow
+
 ### v0.0.7 (2026-01-26)
 - New `SyncChangelogs.ps1` script to synchronize CHANGELOG.md with manifest and README.md
 - CHANGELOG.md is now the single source of truth for all version history
