@@ -136,12 +136,14 @@ function Test-MailboxAndEmailFormat {
         [string]$EmailAddress
     )
     
-    # First check email format
+    # First check email format to fail fast before making EXO call
     if (-not (Test-EmailFormat -EmailAddress $EmailAddress)) {
         return $false
     }
     
     # Check if mailbox exists in Exchange Online
+    # Note: Using Get-CasMailbox for validation as it's lighter weight than Get-EXOMailbox and sufficient for existence checking.
+    # Requires active EXO connection.
     try {
         $null = Get-CasMailbox -Identity $EmailAddress -ErrorAction Stop
         return $true
@@ -160,14 +162,17 @@ function Find-ExoAlias {
     Searches for an email alias in an Exchange Online mailbox.
     
     .DESCRIPTION
-    Connects to Exchange Online and searches for a specified email address or pattern
-    within a mailbox's email addresses. If no search pattern is provided, returns all addresses.
+    Connects to Exchange Online, validates that the mailbox exists, and searches for a specified email address or pattern within the mailbox's email addresses.
+    If no search pattern is provided, returns all addresses.
     
     .PARAMETER AddressToBeSearched
-    The email address or pattern to search for in the mailbox. If null or empty, returns all addresses.
+    The email address or pattern to search for in the mailbox.
+    If null or empty, returns all addresses.
     
     .PARAMETER MailboxToBeSearched
-    The email address of the mailbox to search. Must be in user@example.com format. This parameter is mandatory.
+    The email address of the mailbox to search.
+    Must be in user@example.com format and must exist in Exchange Online.
+    This parameter is mandatory.
     
     .EXAMPLE
     Find-ExoAlias -AddressToBeSearched "alias@domain.com" -MailboxToBeSearched "user@example.com"
@@ -190,14 +195,16 @@ function Find-ExoAlias {
         [string]$MailboxToBeSearched
     )
     
-    # Validate mailbox email format and existence
+    # Step 1: Validate email format first (fast, no EXO call needed)
     if (-not (Test-EmailFormat -EmailAddress $MailboxToBeSearched)) {
         Write-Host "Error: '$MailboxToBeSearched' is not a valid email address format. Expected format: user@example.com" -ForegroundColor Red
         return
     }
     
+    # Step 2: Connect to Exchange Online (required for all subsequent operations)
     Connect-ExoInteractive
     
+    # Step 3: Validate mailbox exists (prevents errors when querying non-existent mailboxes)
     if (-not (Test-MailboxAndEmailFormat -EmailAddress $MailboxToBeSearched)) {
         Write-Host "Error: '$MailboxToBeSearched' is not a valid email address or the mailbox does not exist in Exchange Online." -ForegroundColor Red
         return
@@ -236,8 +243,11 @@ function Find-ExoAlias {
             # Skip all other address types (SIP:, X500:, etc.)
         }
         
-        # Output custom objects to pipeline only if being piped
-        # Check if output is being captured/piped by inspecting pipeline position
+        # Dual output strategy:
+        # - Console: Formatted, color-coded display for interactive use
+        # - Pipeline: Structured objects for programmatic processing
+        # Output custom objects to pipeline only if being piped.
+        # Check if output is being captured/piped by inspecting pipeline position.
         if ($PSCmdlet.MyInvocation.PipelinePosition -lt $PSCmdlet.MyInvocation.PipelineLength) {
             # Being piped - return objects for pipeline processing
             foreach ($alias in $sortedAliases) {
@@ -259,14 +269,17 @@ function Add-ExoAlias {
     Adds an email alias to an Exchange Online mailbox.
     
     .DESCRIPTION
-    Connects to Exchange Online and adds a new email alias to the specified mailbox.
-    Verifies that the alias was successfully added.
+    Connects to Exchange Online, validates that the mailbox exists, adds a new email alias to the specified mailbox, and verifies that the alias was successfully added.
     
     .PARAMETER AddressToBeAdded
-    The email address to add as an alias. Must be in user@example.com format. This parameter is mandatory.
+    The email address to add as an alias.
+    Must be in user@example.com format.
+    This parameter is mandatory.
     
     .PARAMETER MailboxToAddAlias
-    The email address of the mailbox to modify. Must be in user@example.com format. This parameter is mandatory.
+    The email address of the mailbox to modify.
+    Must be in user@example.com format and must exist in Exchange Online.
+    This parameter is mandatory.
     
     .EXAMPLE
     Add-ExoAlias -AddressToBeAdded "newalias@domain.com" -MailboxToAddAlias "user@example.com"
@@ -325,16 +338,17 @@ function Remove-ExoAlias {
     Removes an email alias from an Exchange Online mailbox.
     
     .DESCRIPTION
-    Connects to Exchange Online, verifies the alias exists, prompts for confirmation,
-    and removes the specified email alias from the mailbox. Can accept pipeline input
-    from Find-ExoAlias to remove multiple aliases.
+    Connects to Exchange Online, validates that the mailbox exists, verifies the alias exists, prompts for confirmation, and removes the specified email alias from the mailbox.
+    Can accept pipeline input from Find-ExoAlias to remove multiple aliases.
     
     .PARAMETER AddressToBeRemoved
-    The email address to remove from the mailbox. Can be in user@example.com format or
-    smtp:user@example.com format (from pipeline). Accepts pipeline input.
+    The email address to remove from the mailbox.
+    Can be in user@example.com format or smtp:user@example.com format (from pipeline).
+    Accepts pipeline input.
     
     .PARAMETER MailboxToBeRemoved
-    The email address of the mailbox to modify. Must be in user@example.com format.
+    The email address of the mailbox to modify.
+    Must be in user@example.com format and must exist in Exchange Online.
     When piping from Find-ExoAlias, this parameter is automatically populated.
     
     .EXAMPLE
@@ -360,9 +374,10 @@ function Remove-ExoAlias {
     )
     
     begin {
+        # Connect once at the beginning for all pipeline items
         Connect-ExoInteractive
         
-        # Store current mailbox to detect changes in pipeline
+        # Cache mailbox addresses to avoid redundant EXO calls when processing multiple aliases from the same mailbox in a pipeline scenario.
         $currentMailbox = $null
         $currentMailboxAddresses = $null
     }
@@ -392,7 +407,8 @@ function Remove-ExoAlias {
             return
         }
         
-        # Get mailbox addresses (cache if same mailbox)
+        # Performance optimization: Cache mailbox addresses to reduce EXO API calls
+        # Only re-query if processing a different mailbox (relevant when piping multiple items)
         if ($currentMailbox -ne $targetMailbox) {
             $currentMailbox = $targetMailbox
             $currentMailboxAddresses = Get-ExoMailboxAddresses -Identity $targetMailbox
