@@ -8,7 +8,7 @@
 RootModule = 'ExoAliasManagement.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.8'
+ModuleVersion = '0.0.9'
 
 # ID used to uniquely identify this module
 GUID = 'a1b2c3d4-e5f6-4789-a012-3456789abcde'
@@ -71,6 +71,9 @@ PrivateData = @{
 
         # ReleaseNotes of this module
         ReleaseNotes = @'
+v0.0.9 (2026-03-23)
+- Lowered minimum ExchangeOnlineManagement requirement to v3.6.0 (from v3.9.2) due compatibility issues observed on macOS 26.3 with v3.9.2
+
 v0.0.8 (2026-01-26)
 - `Release.ps1` now requires clean git state before running (all changes must be committed first)
 - `Release.ps1` automatically pushes changes and tags to GitHub without prompting
