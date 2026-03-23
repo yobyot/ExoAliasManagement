@@ -49,12 +49,12 @@ Import-Module ExoAliasManagement
 ## Prerequisites
 
 - **PowerShell 7.0 or higher** (PowerShell Core)
-- **ExchangeOnlineManagement module** (v3.9.2 or higher)
+- **ExchangeOnlineManagement module** (v3.6.0 or higher)
 
 Install prerequisites:
 ```powershell
 # Install the ExchangeOnlineManagement module
-Install-Module ExchangeOnlineManagement -MinimumVersion 3.9.2
+Install-Module ExchangeOnlineManagement -MinimumVersion 3.6.0
 
 # Verify PowerShell version (should be 7.0 or higher)
 $PSVersionTable.PSVersion
@@ -186,6 +186,9 @@ Find-ExoAlias "test" "john@contoso.com" | Remove-ExoAlias
 ```
 
 ## Version History
+
+### v0.0.9 (2026-03-23)
+- Lowered minimum ExchangeOnlineManagement requirement to v3.6.0 (from v3.9.2) due compatibility issues observed on macOS 26.3 with v3.9.2
 
 ### v0.0.8 (2026-01-26)
 - `Release.ps1` now requires clean git state before running (all changes must be committed first)
